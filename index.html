@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Demo Hệ Thống Tệp – Full Interactive</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #e9eef2;
+    margin: 0;
+    padding: 0;
+}
+.header {
+    background: #2b4c7e;
+    color: white;
+    padding: 16px;
+    font-size: 22px;
+    text-align: center;
+}
+.container {
+    width: 90%;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+}
+
+/* Tabs */
+.tab {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 12px;
+}
+.tab button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    background: #ddd;
+    margin-right: 4px;
+    border-radius: 6px 6px 0 0;
+    font-weight: bold;
+}
+.tab button.active {
+    background: #2b4c7e;
+    color: white;
+}
+
+/* Content areas */
+.content {
+    display: none;
+}
+
+.row { display: flex; gap: 18px; }
+.col { flex: 1; }
+
+input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+textarea { height: 120px; resize: vertical; }
+
+button.action {
+    background: #2b4c7e;
+    color: white;
+    border: none;
+    padding: 7px 12px;
+    margin: 4px 2px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button.action:hover { background: #213b62; }
+
+#output, #fatOutput, #allocOutput {
+    background: #111;
+    color: #0f0;
+    padding: 10px;
+    height: 500px;
+    border-radius: 6px;
+    overflow-y: auto;
+    font-family: Consolas;
+    white-space: pre-wrap;
+}
+
+#fileList {
+    background: #fafafa;
+    height: 240px;
+    padding: 6px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+#fileList div {
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#fileList div:hover { background: #ddd; }
+#fileList .active { background: #2b4c7e; color: white; }
+
+/* FAT table */
+#fatTable {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+}
+#fatTable th, #fatTable td {
+    border: 1px solid #aaa;
+    padding: 6px;
+    text-align: center;
+}
+#fatTable input {
+    width: 60px;
+}
+
+/* Linked list diagram */
+.list-diagram {
+    margin-top: 15px;
+    font-family: Consolas;
+    white-space: pre;
+    color: #003366;
+    padding: 10px;
+    border-left: 4px solid #2b4c7e;
+    background: #eef4ff;
+    border-radius: 4px;
+}
+
+/* Output cho Access Methods */
+#accessOutput {
+    background: #111;
+    color: #0f0;
+    padding: 10px;
+    height: 400px;
+    border-radius: 6px;
+    overflow-y: auto;
+    font-family: Consolas;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">DEMO HỆ THỐNG TỆP – FILE SYSTEM DEMO</div>
+
+<div class="container">
+
+    <!-- Tabs -->
+    <div class="tab">
+        <button class="active" onclick="openTab(event, 'tab1')">1. File-System Interface</button>
+        <button onclick="openTab(event, 'tab2')">2. FAT – Linked List Blocks</button>
+        <button onclick="openTab(event, 'tab3')">3. Allocation Methods</button>
+        <!-- TAB 4 mới -->
+        <button onclick="openTab(event, 'tab4')">4. Access Methods</button>
+    </div>
+
+
+    <!-- TAB 1: FILE INTERFACE -->
+    <div id="tab1" class="content" style="display:block;">
+        <h2>1. Giao diện Hệ thống Tệp – Các thao tác tệp (File Operations)</h2>
+        <p>
+            Các thao tác tệp chính trong Chương 13:
+            <b>Tạo một tệp, Mở một tệp, Ghi một tệp, Đọc một tệp,
+            Định vị lại trong tệp, Cắt ngắn một tệp, Xóa một tệp</b>.
+            Bảng bên trái cho phép bạn mô phỏng từng thao tác này.
+        </p>
+
+        <div class="row">
+            <div class="col">
+
+                <label>Tên tệp (file name)</label>
+                <input type="text" id="filename" value="demo.txt">
+
+                <label>Nội dung dùng để GHI tệp</label>
+                <textarea id="writeContent"
+                    placeholder="Nhập nội dung, sau đó dùng nút &quot;Ghi tệp&quot;..."></textarea>
+
+                <label>Định vị lại trong tệp (Seek / Reposition)</label>
+                <div class="row">
+                    <div class="col">
+                        <small>Vị trí bắt đầu (byte offset)</small>
+                        <input type="number" id="seekPos" value="0">
+                    </div>
+                    <div class="col">
+                        <small>Số ký tự cần đọc</small>
+                        <input type="number" id="seekLen" value="20">
+                    </div>
+                </div>
+
+                <div style="margin-top:15px;">
+                    <!-- 7 thao tác đúng như slide -->
+                    <button class="action" onclick="createFile()">Tạo một tệp (Creating a file)</button>
+                    <button class="action" onclick="openFile()">Mở một tệp (Opening a file)</button>
+                    <button class="action" onclick="writeFile()">Ghi một tệp (Writing a file)</button>
+                    <button class="action" onclick="readFile()">Đọc một tệp (Reading a file)</button>
+                    <button class="action" onclick="seekRead()">Định vị lại trong tệp (Repositioning)</button>
+                    <button class="action" onclick="truncateFile()">Cắt ngắn một tệp (Truncating)</button>
+                    <button class="action" onclick="deleteFile()">Xóa một tệp (Deleting a file)</button>
+                    <button class="action" onclick="clearOutput()">Clear log</button>
+                </div>
+            </div>
+
+            <div class="col">
+                <label>Danh sách tệp (Directory giả lập)</label>
+                <div id="fileList"></div>
+
+                <label style="margin-top:10px;">Output mô phỏng thao tác</label>
+                <div id="output"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TAB 2: FAT SIMULATION -->
+    <div id="tab2" class="content">
+        <h2>2. FAT – File Allocation Table (Linked List Simulation)</h2>
+
+        <label>Số lượng block:</label>
+        <input type="number" id="fatSize" value="10" min="1" style="width:120px;">
+        <button class="action" onclick="generateFAT()">Tạo FAT</button>
+
+        <div id="fatArea"></div>
+
+        <h3>Linked List Chain</h3>
+        <label>Block bắt đầu (Start block)</label>
+        <input type="number" id="fatStart" value="0" style="width:120px;">
+        <button class="action" onclick="showChain()">Hiển thị chain</button>
+
+        <div id="fatOutput"></div>
+        <div id="diagram" class="list-diagram"></div>
+    </div>
+
+    <!-- TAB 3: ALLOCATION METHODS -->
+    <div id="tab3" class="content">
+        <h2>3. Allocation Methods – Mô phỏng các phương pháp cấp phát</h2>
+
+        <p><b>Disk Size (số block trên đĩa):</b></p>
+        <input type="number" id="diskSize" value="16" min="1" style="width:120px;">
+        <button class="action" onclick="initDisk()">Khởi tạo đĩa</button>
+
+        <h3>3.1 Contiguous Allocation (Cấp phát liên tục)</h3>
+        <div class="row">
+            <div class="col">
+                <small>Start block</small>
+                <input type="number" id="contigStart" value="2">
+            </div>
+            <div class="col">
+                <small>Length (số block)</small>
+                <input type="number" id="contigLen" value="5">
+            </div>
+        </div>
+        <button class="action" onclick="demoContiguous()">Demo Contiguous</button>
+
+        <h3>3.2 Linked Allocation (Danh sách liên kết – như FAT)</h3>
+        <p><small>Nhập danh sách block cho file (vd: 2,10,5,7)</small></p>
+        <input type="text" id="linkedBlocks" value="2,10,5,7">
+        <button class="action" onclick="demoLinked()">Demo Linked</button>
+
+        <h3>3.3 Indexed Allocation (Cấp phát theo chỉ mục – i-node)</h3>
+        <div class="row">
+            <div class="col">
+                <small>Index block (i-node)</small>
+                <input type="number" id="indexBlock" value="3">
+            </div>
+            <div class="col">
+                <small>Danh sách block dữ liệu (vd: 8,11,40,55)</small>
+                <input type="text" id="indexDataBlocks" value="8,11,12,14">
+            </div>
+        </div>
+        <button class="action" onclick="demoIndexed()">Demo Indexed</button>
+
+        <h3>Kết quả mô phỏng</h3>
+        <div id="allocOutput"></div>
+    </div>
+
+    <!-- TAB 4: ACCESS METHODS -->
+    <div id="tab4" class="content">
+        <h2>4. Access Methods – Các phương pháp truy cập tệp</h2>
+        <p>
+            File được mô phỏng là danh sách bản ghi phân cách bằng dấu phẩy, ví dụ:
+            <code>R1,R2,R3,R4,R5</code>.  
+            Dưới đây là demo 4 cách truy cập:
+            <b>Tuần tự, Trực tiếp, Indexed, Hashed</b>.
+        </p>
+
+        <label>Nội dung file (các bản ghi cách nhau bởi dấu phẩy)</label>
+        <textarea id="accessFile">R1,R2,R3,R4,R5</textarea>
+
+        <div class="row">
+            <div class="col">
+                <h3>4.1 Truy cập tuần tự (Sequential)</h3>
+                <button class="action" onclick="demoSequential()">Demo Sequential</button>
+            </div>
+            <div class="col">
+                <h3>4.2 Truy cập trực tiếp (Direct)</h3>
+                <small>Vị trí bản ghi (0,1,2,...)</small>
+                <input type="number" id="accessPos" value="2">
+                <button class="action" onclick="demoDirect()">Demo Direct</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h3>4.3 Indexed Access</h3>
+                <small>Nhập khóa bản ghi (vd: R3)</small>
+                <input type="text" id="accessKeyIndex" value="R3">
+                <button class="action" onclick="demoIndexedAccess()">Demo Indexed Access</button>
+            </div>
+            <div class="col">
+                <h3>4.4 Hashed Access</h3>
+                <small>Nhập khóa (vd: user42)</small>
+                <input type="text" id="accessKeyHash" value="user42">
+                <button class="action" onclick="demoHashedAccess()">Demo Hashed Access</button>
+            </div>
+        </div>
+
+        <h3>Kết quả mô phỏng</h3>
+        <div id="accessOutput"></div>
+    </div>
+
+</div>
+
+<script>
+/* ---------------------- TAB switching ---------------------- */
+function openTab(evt, tabName) {
+    let i, content, tabs;
+    content = document.getElementsByClassName("content");
+    for (i = 0; i < content.length; i++) content[i].style.display = "none";
+
+    tabs = document.querySelectorAll(".tab button");
+    tabs.forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById(tabName).style.display = "block";
+    evt.target.classList.add("active");
+}
+
+/* ---------------------- TAB 1: FILE SYSTEM ---------------------- */
+let fileSystem = {};
+let currentFile = null;
+
+function log(msg) {
+    let out = document.getElementById("output");
+    out.innerHTML += msg + "\n";
+    out.scrollTop = out.scrollHeight;
+}
+
+function refreshFileList() {
+    let list = document.getElementById("fileList");
+    list.innerHTML = "";
+    let names = Object.keys(fileSystem);
+    if (names.length === 0) {
+        list.innerHTML = "<i>(Chưa có tệp)</i>";
+        return;
+    }
+    names.forEach(name => {
+        let div = document.createElement("div");
+        div.textContent = name;
+        if (currentFile && currentFile.name === name) div.classList.add("active");
+        div.onclick = () => {
+            currentFile = fileSystem[name];
+            document.getElementById("filename").value = name;
+            refreshFileList();
+            log("Chọn tệp: " + name);
+        };
+        list.appendChild(div);
+    });
+}
+
+// Creating a file
+function createFile() {
+    let name = document.getElementById("filename").value.trim();
+    if (!name) return alert("Nhập tên tệp trước!");
+
+    if (fileSystem[name]) {
+        log("Tệp '" + name + "' đã tồn tại → không tạo mới (demo Creating).");
+    } else {
+        fileSystem[name] = { name: name, content: "" };
+        currentFile = fileSystem[name];
+        log("Tạo một tệp mới: '" + name + "'.");
+        refreshFileList();
+    }
+}
+
+// Opening a file
+function openFile() {
+    let name = document.getElementById("filename").value.trim();
+    if (!name) return alert("Nhập tên tệp trước!");
+
+    if (!fileSystem[name]) {
+        alert("Tệp chưa tồn tại. Hãy tạo tệp trước (Creating a file).");
+        return;
+    }
+    currentFile = fileSystem[name];
+    log("Mở tệp: '" + name + "'.");
+    refreshFileList();
+}
+
+// Writing a file (overwrite nội dung bằng vùng nhập)
+function writeFile() {
+    if (!currentFile) return alert("Hãy Mở tệp trước khi Ghi (Open → Write).");
+    let text = document.getElementById("writeContent").value;
+    currentFile.content = text;
+    log(`Ghi một tệp: ghi ${text.length} ký tự vào '${currentFile.name}'.`);
+}
+
+// Reading a file
+function readFile() {
+    if (!currentFile) return alert("Hãy Mở tệp trước khi Đọc.");
+    log(`----- Đọc một tệp '${currentFile.name}' -----`);
+    log(currentFile.content || "(Tệp đang trống)");
+}
+
+// Repositioning within a file (Seek)
+function seekRead() {
+    if (!currentFile) return alert("Hãy Mở tệp trước khi Seek.");
+    let pos = parseInt(document.getElementById("seekPos").value);
+    let len = parseInt(document.getElementById("seekLen").value);
+    if (isNaN(pos) || isNaN(len) || pos < 0 || len <= 0) {
+        alert("Tham số seek không hợp lệ!");
+        return;
+    }
+    let txt = currentFile.content.substring(pos, pos + len);
+    log(`Định vị lại trong tệp: từ byte ${pos}, đọc ${len} ký tự:`);
+    log(txt || "(vượt ngoài phạm vi dữ liệu)");
+}
+
+// Truncating a file (cắt ngắn về 0 byte)
+function truncateFile() {
+    if (!currentFile) return alert("Hãy Mở tệp trước khi Cắt ngắn.");
+    currentFile.content = "";
+    log("Cắt ngắn một tệp: đặt kích thước của '" +
+        currentFile.name + "' về 0 (xóa toàn bộ nội dung nhưng giữ tên tệp).");
+}
+
+// Deleting a file
+function deleteFile() {
+    if (!currentFile) return alert("Chưa có tệp nào đang được chọn để xóa.");
+    let name = currentFile.name;
+    delete fileSystem[name];
+    currentFile = null;
+    log("Xóa một tệp: '" + name + "' khỏi hệ thống (demo).");
+    refreshFileList();
+}
+
+function clearOutput() {
+    document.getElementById("output").innerHTML = "";
+}
+
+
+/* ---------------------- TAB 2: FAT SIMULATION ---------------------- */
+let FAT = [];
+
+function generateFAT() {
+    let size = parseInt(document.getElementById("fatSize").value);
+    FAT = Array(size).fill(-1);
+
+    let html = `<table id="fatTable"><tr><th>Block</th><th>Next</th></tr>`;
+    for (let i = 0; i < size; i++) {
+        html += `
+            <tr>
+                <td>${i}</td>
+                <td><input type="number" id="fat_${i}" value="-1"></td>
+            </tr>
+        `;
+    }
+    html += "</table>";
+
+    document.getElementById("fatArea").innerHTML = html;
+}
+
+function readFATInputs() {
+    for (let i = 0; i < FAT.length; i++) {
+        FAT[i] = parseInt(document.getElementById("fat_" + i).value);
+    }
+}
+
+function showChain() {
+    readFATInputs();
+
+    let start = parseInt(document.getElementById("fatStart").value);
+    if (isNaN(start) || start < 0 || start >= FAT.length)
+        return alert("Block bắt đầu không hợp lệ!");
+
+    let chain = [];
+    let visited = new Set();
+    let current = start;
+
+    while (current !== -1 && !visited.has(current)) {
+        chain.push(current);
+        visited.add(current);
+        current = FAT[current];
+    }
+
+    if (visited.has(current)) chain.push("(loop detected)");
+
+    document.getElementById("fatOutput").innerText =
+        "FAT Chain: " + chain.join(" → ") + " → NULL";
+
+    // Draw linked list diagram
+    let diag = "";
+    chain.forEach((blk) => {
+        if (blk === "(loop detected)") return;
+        let next = FAT[blk];
+        diag +=
+`+---------+---------+
+| Block   | ${blk.toString().padEnd(7)}|
++---------+---------+
+| Next    | ${next === -1 ? "NULL" : next.toString().padEnd(7)}|
++---------+---------+
+       |
+       v
+`;
+    });
+
+    diag += "END";
+
+    document.getElementById("diagram").innerText = diag;
+}
+
+/* ---------------------- TAB 3: ALLOCATION METHODS ---------------------- */
+let diskBlocks = [];
+
+function initDisk() {
+    const n = parseInt(document.getElementById("diskSize").value);
+    if (isNaN(n) || n <= 0) return alert("Disk size không hợp lệ!");
+    diskBlocks = new Array(n).fill('.');
+    document.getElementById("allocOutput").innerText =
+        "Đã khởi tạo đĩa với " + n + " block.\n" +
+        renderDiskLine([], "Chưa có file nào được cấp phát.");
+}
+
+function renderDiskLine(highlightIndices, caption) {
+    const n = diskBlocks.length;
+    let line = "Disk blocks:\n";
+    for (let i = 0; i < n; i++) {
+        const idxStr = i.toString().padStart(2,'0');
+        if (highlightIndices.includes(i)) {
+            line += "[" + idxStr + "]";
+        } else {
+            line += " " + idxStr + " ";
+        }
+    }
+    line += "\n" + (caption || "") + "\n";
+    return line;
+}
+
+// 3.1 Contiguous
+function demoContiguous() {
+    if (diskBlocks.length === 0) initDisk();
+    const start = parseInt(document.getElementById("contigStart").value);
+    const len = parseInt(document.getElementById("contigLen").value);
+    const n = diskBlocks.length;
+
+    if (isNaN(start) || isNaN(len) || start < 0 || len <= 0 || start + len > n) {
+        alert("Thông số contiguous không hợp lệ!");
+        return;
+    }
+    const used = [];
+    for (let i = start; i < start + len; i++) used.push(i);
+
+    let text = "== Contiguous Allocation ==\n";
+    text += "Start = " + start + ", Length = " + len + "\n";
+    text += "Các block được cấp phát liên tục cho file: " +
+            used.join(", ") + "\n\n";
+    text += renderDiskLine(used, "Các block trong [ ] là block thuộc file (liên tục).");
+
+    document.getElementById("allocOutput").innerText = text;
+}
+
+// 3.2 Linked
+function demoLinked() {
+    if (diskBlocks.length === 0) initDisk();
+    const raw = document.getElementById("linkedBlocks").value.trim();
+    if (!raw) return alert("Nhập danh sách block (vd: 2,10,5,7)");
+    
+    const parts = raw.split(",")
+                     .map(x => parseInt(x.trim()))
+                     .filter(x => !isNaN(x));
+
+    if (parts.length === 0) return alert("Danh sách không hợp lệ!");
+
+    const n = diskBlocks.length;
+    for (let b of parts) {
+        if (b < 0 || b >= n) {
+            alert("Block " + b + " vượt kích thước đĩa!");
+            return;
+        }
+    }
+
+    // Tạo chuỗi linked list đơn giản
+    const chain = parts.join(" → ") + " → NULL";
+
+    // Tạo ASCII Linked List sơ đồ cho HS
+    let ascii = "";
+    parts.forEach((blk, idx) => {
+        ascii +=
+`+-------+
+| ${blk.toString().padStart(3, ' ')} |
++-------+`;
+        if (idx < parts.length - 1) ascii += " --> ";
+    });
+    ascii += " --> NULL";
+
+    let text = "== Linked Allocation (FAT-style) ==\n";
+    text += "Chuỗi block của file:\n" + chain + "\n\n";
+
+    text += "Linked List (dạng sơ đồ):\n" + ascii + "\n\n";
+
+    text += "Giải thích: Mỗi block trỏ đến block tiếp theo trong FAT.\n\n";
+
+    text += renderDiskLine(parts,
+        "Các block [ ] thuộc về file (rời rạc, được nối bằng linked list).");
+
+    document.getElementById("allocOutput").innerText = text;
+}
+
+// 3.3 Indexed
+function demoIndexed() {
+    if (diskBlocks.length === 0) initDisk();
+
+    const idx = parseInt(document.getElementById("indexBlock").value);
+    const raw = document.getElementById("indexDataBlocks").value.trim();
+    if (isNaN(idx)) return alert("Index block không hợp lệ!");
+
+    const n = diskBlocks.length;
+    if (idx < 0 || idx >= n) {
+        alert("Index block vượt kích thước đĩa!");
+        return;
+    }
+
+    const dataBlocks = raw
+        ? raw.split(",").map(x => parseInt(x.trim())).filter(x => !isNaN(x))
+        : [];
+
+    for (let b of dataBlocks) {
+        if (b < 0 || b >= n) {
+            alert("Data block " + b + " vượt kích thước đĩa!");
+            return;
+        }
+    }
+
+    const highlight = [idx, ...dataBlocks];
+
+    // Chuỗi mô tả
+    let text = "== Indexed Allocation (i-node) ==\n";
+    text += "i-node / Index block = " + idx + "\n";
+    text += "Danh sách block dữ liệu: " +
+            (dataBlocks.length ? dataBlocks.join(", ") : "(trống)") + "\n\n";
+
+    // Vẽ sơ đồ dạng hộp (box diagram)
+    let ascii = "";
+
+    ascii +=
+`+--------------+
+|  Index ${idx.toString().padStart(3,' ')}  |
++--------------+
+        |
+        v
+`;
+
+    if (dataBlocks.length > 0) {
+        let top = "";
+        let mid = "";
+        let bot = "";
+
+        dataBlocks.forEach(b => {
+            top += "+-------+   ";
+            mid += `| ${b.toString().padStart(3,' ')} |   `;
+            bot += "+-------+   ";
+        });
+
+        ascii += top + "\n" + mid + "\n" + bot + "\n";
+        ascii += "\nMỗi ô là một data block mà i-node trỏ tới.\n";
+    } else {
+        ascii += "(Chưa có block dữ liệu nào được gán cho file)\n";
+    }
+
+    text += "Sơ đồ (dạng i-node):\n" + ascii + "\n";
+
+    text += renderDiskLine(
+        highlight,
+        "Index block và các block dữ liệu của file được đánh dấu trong [ ]."
+    );
+
+    document.getElementById("allocOutput").innerText = text;
+}
+
+/* ---------------------- TAB 4: ACCESS METHODS ---------------------- */
+
+// ghi log riêng cho tab 4
+function logAccess(msg) {
+    const out = document.getElementById("accessOutput");
+    out.innerHTML += msg + "\n";
+    out.scrollTop = out.scrollHeight;
+}
+
+// lấy danh sách bản ghi từ textarea
+function getAccessRecords() {
+    const raw = document.getElementById("accessFile").value.trim();
+    if (!raw) return [];
+    return raw.split(",").map(x => x.trim()).filter(x => x.length > 0);
+}
+
+// 4.1 Sequential Access
+function demoSequential() {
+    const recs = getAccessRecords();
+    if (recs.length === 0) {
+        alert("Nhập ít nhất 1 bản ghi trong file!");
+        return;
+    }
+    document.getElementById("accessOutput").innerHTML = "";
+    logAccess("== Sequential Access ==");
+    logAccess("Đọc lần lượt từ đầu đến cuối file:");
+    recs.forEach((r, i) => {
+        logAccess("  Bước " + (i + 1) + ": đọc record[" + i + "] = " + r);
+    });
+    logAccess("\nKết luận: phải đi qua tất cả bản ghi trước vị trí cần đọc.");
+}
+
+// 4.2 Direct Access
+function demoDirect() {
+    const recs = getAccessRecords();
+    const pos = parseInt(document.getElementById("accessPos").value);
+    if (recs.length === 0) {
+        alert("Nhập ít nhất 1 bản ghi trong file!");
+        return;
+    }
+    if (isNaN(pos) || pos < 0 || pos >= recs.length) {
+        alert("Vị trí không hợp lệ!");
+        return;
+    }
+    document.getElementById("accessOutput").innerHTML = "";
+    logAccess("== Direct Access ==");
+    logAccess("Số record trong file: " + recs.length);
+    logAccess("Truy cập trực tiếp record[" + pos + "]: " + recs[pos]);
+    logAccess("\nKết luận: có thể nhảy thẳng tới vị trí i mà không cần đọc lần lượt từ đầu.");
+}
+
+// 4.3 Indexed Access
+function demoIndexedAccess() {
+    const recs = getAccessRecords();
+    const key = document.getElementById("accessKeyIndex").value.trim();
+    if (recs.length === 0) {
+        alert("Nhập ít nhất 1 bản ghi trong file!");
+        return;
+    }
+    if (!key) {
+        alert("Nhập khóa bản ghi (vd: R3)");
+        return;
+    }
+
+    // tạo bảng chỉ mục: recordName -> vị trí
+    const indexTable = {};
+    recs.forEach((r, i) => {
+        indexTable[r] = i;  // đơn giản: khóa chính là tên record
+    });
+
+    document.getElementById("accessOutput").innerHTML = "";
+    logAccess("== Indexed Access ==");
+    logAccess("Bảng chỉ mục (record -> vị trí):");
+    Object.keys(indexTable).forEach(k => {
+        logAccess("  " + k + "  →  record[" + indexTable[k] + "]");
+    });
+
+    if (indexTable[key] === undefined) {
+        logAccess("\nTra cứu khóa '" + key + "': KHÔNG TÌM THẤY trong bảng chỉ mục.");
+    } else {
+        const pos = indexTable[key];
+        logAccess("\nTra cứu khóa '" + key + "':");
+        logAccess("  Dùng index table tìm được vị trí = " + pos);
+        logAccess("  Đọc record[" + pos + "] = " + recs[pos]);
+    }
+
+    logAccess("\nKết luận: Indexed access dùng một bảng tra cứu trung gian để tìm nhanh vị trí cần đọc.");
+}
+
+// 4.4 Hashed Access
+function demoHashedAccess() {
+    const recs = getAccessRecords();
+    const key = document.getElementById("accessKeyHash").value.trim();
+    if (!key) {
+        alert("Nhập khóa cần băm (vd: user42)");
+        return;
+    }
+
+    const BUCKETS = 5; // giả sử có 5 bucket
+    function hash(str) {
+        let sum = 0;
+        for (let i = 0; i < str.length; i++) sum += str.charCodeAt(i);
+        return sum % BUCKETS;
+    }
+
+    // Tạo vài khóa minh họa từ records
+    const keys = recs.length ? recs.slice(0) : ["A","B","C","D","E"];
+    const table = {};
+    keys.forEach(k => {
+        const h = hash(k);
+        if (!table[h]) table[h] = [];
+        table[h].push(k);
+    });
+
+    document.getElementById("accessOutput").innerHTML = "";
+    logAccess("== Hashed Access ==");
+    logAccess("Số bucket giả lập: " + BUCKETS + "\n");
+
+    for (let b = 0; b < BUCKETS; b++) {
+        logAccess("Bucket " + b + ": " + (table[b] ? table[b].join(", ") : "(trống)"));
+    }
+
+    const hk = hash(key);
+    logAccess("\nKhóa cần tra: '" + key + "'");
+    logAccess("  hash(key) = " + hk + " → tra cứu trong Bucket " + hk);
+
+    logAccess("\nKết luận: Hashed access dùng hàm băm để nhảy nhanh tới bucket chứa bản ghi.");
+
+}
+
+// Khởi tạo mặc định cho tab 3
+initDisk();
+</script>
+</body>
+</html>
