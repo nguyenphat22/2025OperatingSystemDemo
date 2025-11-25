@@ -140,6 +140,38 @@ button.action:hover { background: #213b62; }
     font-family: Consolas;
     white-space: pre-wrap;
 }
+
+/* Disk visualization for Allocation Methods */
+#diskVisual {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.disk-block {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background: #f5f5f5;
+    position: relative;
+    transition: transform 0.3s, background 0.3s, color 0.3s;
+}
+
+.disk-block.path {
+    background: #ffe6a3; /* block thuộc file */
+}
+
+.disk-block.active {
+    background: #2b4c7e;  /* block đang “truy cập” */
+    color: #fff;
+    transform: translateY(-4px);
+}
 </style>
 </head>
 
@@ -274,6 +306,10 @@ button.action:hover { background: #213b62; }
         <button class="action" onclick="demoIndexed()">Demo Indexed</button>
 
         <h3>Kết quả mô phỏng</h3>
+        <!-- Dải block trực quan -->
+        <div id="diskVisual"></div>
+
+        <!-- Thuyết minh bằng chữ -->
         <div id="allocOutput"></div>
     </div>
 
@@ -521,34 +557,74 @@ function showChain() {
     document.getElementById("diagram").innerText = diag;
 }
 
-/* ---------------------- TAB 3: ALLOCATION METHODS ---------------------- */
+/* ---------------------- TAB 3: ALLOCATION METHODS (v2 – có mô phỏng di chuyển) ---------------------- */
 let diskBlocks = [];
+let allocAnimTimer = null;
 
+// Khởi tạo đĩa
 function initDisk() {
     const n = parseInt(document.getElementById("diskSize").value);
     if (isNaN(n) || n <= 0) return alert("Disk size không hợp lệ!");
     diskBlocks = new Array(n).fill('.');
-    document.getElementById("allocOutput").innerText =
-        "Đã khởi tạo đĩa với " + n + " block.\n" +
-        renderDiskLine([], "Chưa có file nào được cấp phát.");
+    stopAllocAnimation();
+    drawDisk([], -1, "Đã khởi tạo đĩa với " + n + " block.\nChưa có file nào được cấp phát.");
 }
 
-function renderDiskLine(highlightIndices, caption) {
-    const n = diskBlocks.length;
-    let line = "Disk blocks:\n";
-    for (let i = 0; i < n; i++) {
-        const idxStr = i.toString().padStart(2,'0');
-        if (highlightIndices.includes(i)) {
-            line += "[" + idxStr + "]";
-        } else {
-            line += " " + idxStr + " ";
-        }
+// Vẽ lại dải block trên màn hình
+function drawDisk(path = [], current = -1, caption = "") {
+    const visual = document.getElementById("diskVisual");
+    if (!visual) return;
+    let html = "";
+
+    for (let i = 0; i < diskBlocks.length; i++) {
+        let cls = "disk-block";
+        if (path.includes(i)) cls += " path";
+        if (i === current) cls += " active";
+        html += `<div class="${cls}">${i}</div>`;
     }
-    line += "\n" + (caption || "") + "\n";
-    return line;
+
+    visual.innerHTML = html;
+    document.getElementById("allocOutput").innerText = caption;
 }
 
-// 3.1 Contiguous
+// Dừng mọi animation đang chạy
+function stopAllocAnimation() {
+    if (allocAnimTimer) {
+        clearInterval(allocAnimTimer);
+        allocAnimTimer = null;
+    }
+}
+
+// Hàm chung: mô phỏng "di chuyển" qua từng block trong path
+function animatePath(path, baseCaption) {
+    stopAllocAnimation();
+
+    if (!Array.isArray(path) || path.length === 0) {
+        drawDisk([], -1, baseCaption);
+        return;
+    }
+
+    let step = -1;
+    drawDisk(path, -1, baseCaption + "\n\nBắt đầu mô phỏng truy cập các block...");
+
+    allocAnimTimer = setInterval(() => {
+        step++;
+        if (step >= path.length) {
+            clearInterval(allocAnimTimer);
+            allocAnimTimer = null;
+            drawDisk(path, -1, baseCaption + "\n\nHoàn tất: các block thuộc file được đánh dấu màu vàng.");
+            return;
+        }
+
+        const currentBlock = path[step];
+        const caption = baseCaption +
+            "\n\nĐang truy cập block: " + currentBlock +
+            " (bước " + (step + 1) + " / " + path.length + ")";
+        drawDisk(path, currentBlock, caption);
+    }, 600); // 600ms mỗi bước cho HS dễ nhìn
+}
+
+/* ---- 3.1 Contiguous Allocation ---- */
 function demoContiguous() {
     if (diskBlocks.length === 0) initDisk();
     const start = parseInt(document.getElementById("contigStart").value);
@@ -559,24 +635,24 @@ function demoContiguous() {
         alert("Thông số contiguous không hợp lệ!");
         return;
     }
+
     const used = [];
     for (let i = start; i < start + len; i++) used.push(i);
 
     let text = "== Contiguous Allocation ==\n";
     text += "Start = " + start + ", Length = " + len + "\n";
-    text += "Các block được cấp phát liên tục cho file: " +
-            used.join(", ") + "\n\n";
-    text += renderDiskLine(used, "Các block trong [ ] là block thuộc file (liên tục).");
+    text += "Các block được cấp phát liên tục cho file: " + used.join(", ") + "\n";
+    text += "Đặc điểm: File chiếm một đoạn liên tục trên đĩa → truy cập nhanh, nhưng khó mở rộng.\n";
 
-    document.getElementById("allocOutput").innerText = text;
+    animatePath(used, text);
 }
 
-// 3.2 Linked
+/* ---- 3.2 Linked Allocation ---- */
 function demoLinked() {
     if (diskBlocks.length === 0) initDisk();
     const raw = document.getElementById("linkedBlocks").value.trim();
     if (!raw) return alert("Nhập danh sách block (vd: 2,10,5,7)");
-    
+
     const parts = raw.split(",")
                      .map(x => parseInt(x.trim()))
                      .filter(x => !isNaN(x));
@@ -591,34 +667,18 @@ function demoLinked() {
         }
     }
 
-    // Tạo chuỗi linked list đơn giản
     const chain = parts.join(" → ") + " → NULL";
-
-    // Tạo ASCII Linked List sơ đồ cho HS
-    let ascii = "";
-    parts.forEach((blk, idx) => {
-        ascii +=
-`+-------+
-| ${blk.toString().padStart(3, ' ')} |
-+-------+`;
-        if (idx < parts.length - 1) ascii += " --> ";
-    });
-    ascii += " --> NULL";
 
     let text = "== Linked Allocation (FAT-style) ==\n";
     text += "Chuỗi block của file:\n" + chain + "\n\n";
+    text += "Giải thích: Mỗi block chứa con trỏ đến block tiếp theo (hoặc -1/NULL nếu là block cuối).\n";
+    text += "Ưu điểm: Không cần liên tục trên đĩa, dễ mở rộng.\n";
+    text += "Nhược điểm: Truy cập ngẫu nhiên chậm, phải lần theo từng con trỏ.\n";
 
-    text += "Linked List (dạng sơ đồ):\n" + ascii + "\n\n";
-
-    text += "Giải thích: Mỗi block trỏ đến block tiếp theo trong FAT.\n\n";
-
-    text += renderDiskLine(parts,
-        "Các block [ ] thuộc về file (rời rạc, được nối bằng linked list).");
-
-    document.getElementById("allocOutput").innerText = text;
+    animatePath(parts, text);
 }
 
-// 3.3 Indexed
+/* ---- 3.3 Indexed Allocation ---- */
 function demoIndexed() {
     if (diskBlocks.length === 0) initDisk();
 
@@ -645,48 +705,16 @@ function demoIndexed() {
 
     const highlight = [idx, ...dataBlocks];
 
-    // Chuỗi mô tả
     let text = "== Indexed Allocation (i-node) ==\n";
-    text += "i-node / Index block = " + idx + "\n";
+    text += "Index block (i-node) = " + idx + "\n";
     text += "Danh sách block dữ liệu: " +
             (dataBlocks.length ? dataBlocks.join(", ") : "(trống)") + "\n\n";
 
-    // Vẽ sơ đồ dạng hộp (box diagram)
-    let ascii = "";
+    text += "Giải thích: Index block chứa danh sách các con trỏ đến block dữ liệu.\n";
+    text += "Ưu điểm: Truy cập ngẫu nhiên nhanh, không cần liên tục.\n";
+    text += "Nhược điểm: Tốn thêm 1 block làm chỉ mục, có giới hạn số block nếu bảng chỉ mục cố định.\n";
 
-    ascii +=
-`+--------------+
-|  Index ${idx.toString().padStart(3,' ')}  |
-+--------------+
-        |
-        v
-`;
-
-    if (dataBlocks.length > 0) {
-        let top = "";
-        let mid = "";
-        let bot = "";
-
-        dataBlocks.forEach(b => {
-            top += "+-------+   ";
-            mid += `| ${b.toString().padStart(3,' ')} |   `;
-            bot += "+-------+   ";
-        });
-
-        ascii += top + "\n" + mid + "\n" + bot + "\n";
-        ascii += "\nMỗi ô là một data block mà i-node trỏ tới.\n";
-    } else {
-        ascii += "(Chưa có block dữ liệu nào được gán cho file)\n";
-    }
-
-    text += "Sơ đồ (dạng i-node):\n" + ascii + "\n";
-
-    text += renderDiskLine(
-        highlight,
-        "Index block và các block dữ liệu của file được đánh dấu trong [ ]."
-    );
-
-    document.getElementById("allocOutput").innerText = text;
+    animatePath(highlight, text);
 }
 
 /* ---------------------- TAB 4: ACCESS METHODS ---------------------- */
