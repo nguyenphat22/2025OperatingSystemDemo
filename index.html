@@ -117,7 +117,7 @@ button.action:hover { background: #213b62; }
     width: 60px;
 }
 
-/* Linked list diagram */
+/* Linked list diagram (tab 2) */
 .list-diagram {
     margin-top: 15px;
     font-family: Consolas;
@@ -126,7 +126,7 @@ button.action:hover { background: #213b62; }
     padding: 10px;
     border-left: 4px solid #2b4c7e;
     background: #eef4ff;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 /* Output cho Access Methods */
@@ -134,7 +134,7 @@ button.action:hover { background: #213b62; }
     background: #111;
     color: #0f0;
     padding: 10px;
-    height: 400px;
+    height: 280px;
     border-radius: 6px;
     overflow-y: auto;
     font-family: Consolas;
@@ -164,13 +164,299 @@ button.action:hover { background: #213b62; }
 }
 
 .disk-block.path {
-    background: #ffe6a3; /* block thuộc file */
+    background: #ffe6a3;
 }
 
 .disk-block.active {
-    background: #2b4c7e;  /* block đang “truy cập” */
+    background: #2b4c7e;
     color: #fff;
     transform: translateY(-4px);
+}
+
+/* ===== SƠ ĐỒ CONTIGUOUS & LINKED (dùng chung) ===== */
+#contiguousDiagram,
+#linkedDiagram {
+    margin-top: 18px;
+}
+
+.linked-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.dir-box, .mem-box {
+    background: #eaf4ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid #99b4e0;
+}
+
+.mem-box {
+    position: relative;
+}
+
+.dir-title, .mem-title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.dir-table {
+    border-collapse: collapse;
+    width: 220px;
+}
+.dir-table th, .dir-table td {
+    border: 1px solid #6c87b8;
+    padding: 4px 6px;
+    text-align: center;
+    background: #f7fbff;
+}
+
+.mem-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 70px);
+    grid-auto-rows: 40px;
+    gap: 6px 12px;
+}
+
+.mem-block {
+    width: 70px;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid #6c87b8;
+    background: #ffffff;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
+}
+.mem-block .idx {
+    font-weight: bold;
+}
+.mem-block .label {
+    font-size: 10px;
+    color: #2b4c7e;
+}
+
+.mem-block.file {
+    background: #fff4cf;
+}
+
+.mem-block.file.active {
+    background: #2b4c7e;
+    color: #fff;
+    transform: translateY(-4px);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+.mem-block.file.active .label {
+    color: #fff;
+}
+
+/* SVG cho contiguous/linked arrows */
+.link-arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ===== SƠ ĐỒ INDEXED ALLOCATION ===== */
+#indexedDiagram {
+    margin-top: 18px;
+}
+
+.indexed-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.index-box, .idata-box {
+    background: #eaf4ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid #99b4e0;
+}
+
+.idata-box {
+    position: relative;
+}
+
+.index-title, .idata-title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.index-table {
+    border-collapse: collapse;
+    width: 230px;
+}
+.index-table th, .index-table td {
+    border: 1px solid #6c87b8;
+    padding: 4px 6px;
+    text-align: center;
+    background: #f7fbff;
+    font-size: 12px;
+}
+
+.index-cell {
+    background: #fff4cf;
+}
+.index-cell.active {
+    background: #2b4c7e;
+    color: #fff;
+}
+
+.idata-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 70px);
+    grid-auto-rows: 40px;
+    gap: 6px 12px;
+}
+
+.idata-block {
+    width: 70px;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid #6c87b8;
+    background: #ffffff;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
+}
+.idata-block .idx {
+    font-weight: bold;
+}
+.idata-block .label {
+    font-size: 10px;
+    color: #2b4c7e;
+}
+
+.idata-block.data {
+    background: #fff4cf;
+}
+.idata-block.data.active {
+    background: #2b4c7e;
+    color: #fff;
+    transform: translateY(-4px);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+.idata-block.data.active .label {
+    color: #fff;
+}
+
+/* block là index block trên đĩa */
+.idata-block.index {
+    background: #cfd9ff;
+    border-color: #2b4c7e;
+}
+.idata-block.index .label {
+    color: #2b4c7e;
+    font-weight: bold;
+}
+
+/* SVG cho indexed arrows */
+.index-arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ======= TAB 4 – ACCESS METHODS ======= */
+#accessDiagram {
+    margin-top: 16px;
+}
+
+.access-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.file-box, .access-extra {
+    background: #eaf4ff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid #99b4e0;
+}
+
+.file-title, .access-extra-title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.records-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.record-block {
+    width: 70px;
+    height: 50px;
+    border-radius: 6px;
+    border: 1px solid #6c87b8;
+    background: #ffffff;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
+}
+.record-block .idx {
+    font-size: 10px;
+    color: #555;
+}
+.record-block .val {
+    font-weight: bold;
+    color: #2b4c7e;
+}
+
+.record-block.active {
+    background: #2b4c7e;
+    color: #fff;
+    transform: translateY(-4px);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+.record-block.active .idx,
+.record-block.active .val {
+    color: #fff;
+}
+
+/* bảng index / hash trong tab 4 */
+.access-table {
+    border-collapse: collapse;
+    width: 230px;
+}
+.access-table th, .access-table td {
+    border: 1px solid #6c87b8;
+    padding: 4px 6px;
+    text-align: center;
+    background: #f7fbff;
+    font-size: 12px;
+}
+.access-table tr.active {
+    background: #2b4c7e;
+    color: #fff;
 }
 </style>
 </head>
@@ -184,21 +470,18 @@ button.action:hover { background: #213b62; }
     <!-- Tabs -->
     <div class="tab">
         <button class="active" onclick="openTab(event, 'tab1')">1. File-System Interface</button>
-        <button onclick="openTab(event, 'tab2')">2. FAT – Linked List Blocks</button>
-        <button onclick="openTab(event, 'tab3')">3. Allocation Methods</button>
-        <!-- TAB 4 mới -->
-        <button onclick="openTab(event, 'tab4')">4. Access Methods</button>
+        <!-- <button onclick="openTab(event, 'tab2')">2. FAT – Linked List Blocks</button> -->
+        <button onclick="openTab(event, 'tab3')">2. Allocation Methods</button>
+        <!-- <button onclick="openTab(event, 'tab4')">3. Access Methods</button> -->
     </div>
 
 
-    <!-- TAB 1: FILE INTERFACE -->
+    <!-- TAB 1 -->
     <div id="tab1" class="content" style="display:block;">
         <h2>1. Giao diện Hệ thống Tệp – Các thao tác tệp (File Operations)</h2>
         <p>
             Các thao tác tệp chính trong Chương 13:
-            <b>Tạo một tệp, Mở một tệp, Ghi một tệp, Đọc một tệp,
-            Định vị lại trong tệp, Cắt ngắn một tệp, Xóa một tệp</b>.
-            Bảng bên trái cho phép bạn mô phỏng từng thao tác này.
+            <b>Tạo, Mở, Ghi, Đọc, Định vị lại (Seek), Cắt ngắn, Xóa</b>.
         </p>
 
         <div class="row">
@@ -224,14 +507,13 @@ button.action:hover { background: #213b62; }
                 </div>
 
                 <div style="margin-top:15px;">
-                    <!-- 7 thao tác đúng như slide -->
-                    <button class="action" onclick="createFile()">Tạo một tệp (Creating a file)</button>
-                    <button class="action" onclick="openFile()">Mở một tệp (Opening a file)</button>
-                    <button class="action" onclick="writeFile()">Ghi một tệp (Writing a file)</button>
-                    <button class="action" onclick="readFile()">Đọc một tệp (Reading a file)</button>
-                    <button class="action" onclick="seekRead()">Định vị lại trong tệp (Repositioning)</button>
-                    <button class="action" onclick="truncateFile()">Cắt ngắn một tệp (Truncating)</button>
-                    <button class="action" onclick="deleteFile()">Xóa một tệp (Deleting a file)</button>
+                    <button class="action" onclick="createFile()">Tạo một tệp</button>
+                    <button class="action" onclick="openFile()">Mở một tệp</button>
+                    <button class="action" onclick="writeFile()">Ghi một tệp</button>
+                    <button class="action" onclick="readFile()">Đọc một tệp</button>
+                    <button class="action" onclick="seekRead()">Định vị lại</button>
+                    <button class="action" onclick="truncateFile()">Cắt ngắn một tệp</button>
+                    <button class="action" onclick="deleteFile()">Xóa một tệp</button>
                     <button class="action" onclick="clearOutput()">Clear log</button>
                 </div>
             </div>
@@ -247,7 +529,7 @@ button.action:hover { background: #213b62; }
     </div>
 
 
-    <!-- TAB 2: FAT SIMULATION -->
+    <!-- TAB 2 -->
     <div id="tab2" class="content">
         <h2>2. FAT – File Allocation Table (Linked List Simulation)</h2>
 
@@ -266,15 +548,15 @@ button.action:hover { background: #213b62; }
         <div id="diagram" class="list-diagram"></div>
     </div>
 
-    <!-- TAB 3: ALLOCATION METHODS -->
+    <!-- TAB 3 -->
     <div id="tab3" class="content">
-        <h2>3. Allocation Methods – Mô phỏng các phương pháp cấp phát</h2>
+        <h2>2. Allocation Methods – Mô phỏng các phương pháp cấp phát</h2>
 
         <p><b>Disk Size (số block trên đĩa):</b></p>
         <input type="number" id="diskSize" value="16" min="1" style="width:120px;">
         <button class="action" onclick="initDisk()">Khởi tạo đĩa</button>
 
-        <h3>3.1 Contiguous Allocation (Cấp phát liên tục)</h3>
+        <h3>2.1 Contiguous Allocation (Cấp phát liên tục)</h3>
         <div class="row">
             <div class="col">
                 <small>Start block</small>
@@ -286,41 +568,42 @@ button.action:hover { background: #213b62; }
             </div>
         </div>
         <button class="action" onclick="demoContiguous()">Demo Contiguous</button>
+        <div id="contiguousDiagram"></div>
 
-        <h3>3.2 Linked Allocation (Danh sách liên kết – như FAT)</h3>
-        <p><small>Nhập danh sách block cho file (vd: 2,10,5,7)</small></p>
-        <input type="text" id="linkedBlocks" value="2,10,5,7">
+        <h3>2.2 Linked Allocation (Danh sách liên kết – như FAT)</h3>
+        <p><small>Nhập danh sách block cho file (vd: 0,5,10,13)</small></p>
+        <input type="text" id="linkedBlocks" value="0,5,10,13">
         <button class="action" onclick="demoLinked()">Demo Linked</button>
 
-        <h3>3.3 Indexed Allocation (Cấp phát theo chỉ mục – i-node)</h3>
+        <div id="linkedDiagram"></div>
+
+        <h3>2.3 Indexed Allocation (Cấp phát theo chỉ mục – i-node)</h3>
         <div class="row">
             <div class="col">
                 <small>Index block (i-node)</small>
                 <input type="number" id="indexBlock" value="3">
             </div>
             <div class="col">
-                <small>Danh sách block dữ liệu (vd: 8,11,40,55)</small>
+                <small>Danh sách block dữ liệu (vd: 8,11,12,14)</small>
                 <input type="text" id="indexDataBlocks" value="8,11,12,14">
             </div>
         </div>
         <button class="action" onclick="demoIndexed()">Demo Indexed</button>
 
-        <h3>Kết quả mô phỏng</h3>
-        <!-- Dải block trực quan -->
-        <div id="diskVisual"></div>
+        <div id="indexedDiagram"></div>
 
-        <!-- Thuyết minh bằng chữ -->
-        <div id="allocOutput"></div>
+        <!-- <h3>Kết quả mô phỏng trên dải block</h3>
+        <div id="diskVisual"></div>
+        <div id="allocOutput"></div> -->
     </div>
 
-    <!-- TAB 4: ACCESS METHODS -->
+    <!-- TAB 4 -->
     <div id="tab4" class="content">
-        <h2>4. Access Methods – Các phương pháp truy cập tệp</h2>
+        <h2>3. Access Methods – Các phương pháp truy cập tệp</h2>
         <p>
             File được mô phỏng là danh sách bản ghi phân cách bằng dấu phẩy, ví dụ:
-            <code>R1,R2,R3,R4,R5</code>.  
-            Dưới đây là demo 4 cách truy cập:
-            <b>Tuần tự, Trực tiếp, Indexed, Hashed</b>.
+            <code>R1,R2,R3,R4,R5</code>.<br>
+            Bốn phương pháp truy cập: <b>Sequential, Direct, Indexed, Hashed</b>.
         </p>
 
         <label>Nội dung file (các bản ghi cách nhau bởi dấu phẩy)</label>
@@ -328,11 +611,11 @@ button.action:hover { background: #213b62; }
 
         <div class="row">
             <div class="col">
-                <h3>4.1 Truy cập tuần tự (Sequential)</h3>
+                <h3>3.1 Truy cập tuần tự (Sequential)</h3>
                 <button class="action" onclick="demoSequential()">Demo Sequential</button>
             </div>
             <div class="col">
-                <h3>4.2 Truy cập trực tiếp (Direct)</h3>
+                <h3>3.2 Truy cập trực tiếp (Direct)</h3>
                 <small>Vị trí bản ghi (0,1,2,...)</small>
                 <input type="number" id="accessPos" value="2">
                 <button class="action" onclick="demoDirect()">Demo Direct</button>
@@ -341,20 +624,23 @@ button.action:hover { background: #213b62; }
 
         <div class="row">
             <div class="col">
-                <h3>4.3 Indexed Access</h3>
+                <h3>3.3 Indexed Access</h3>
                 <small>Nhập khóa bản ghi (vd: R3)</small>
                 <input type="text" id="accessKeyIndex" value="R3">
                 <button class="action" onclick="demoIndexedAccess()">Demo Indexed Access</button>
             </div>
             <div class="col">
-                <h3>4.4 Hashed Access</h3>
+                <h3>3.4 Hashed Access</h3>
                 <small>Nhập khóa (vd: user42)</small>
                 <input type="text" id="accessKeyHash" value="user42">
                 <button class="action" onclick="demoHashedAccess()">Demo Hashed Access</button>
             </div>
         </div>
 
-        <h3>Kết quả mô phỏng</h3>
+        <h3>Mô phỏng trực quan</h3>
+        <div id="accessDiagram"></div>
+
+        <h3>Giải thích / Log</h3>
         <div id="accessOutput"></div>
     </div>
 
@@ -406,13 +692,12 @@ function refreshFileList() {
     });
 }
 
-// Creating a file
 function createFile() {
     let name = document.getElementById("filename").value.trim();
     if (!name) return alert("Nhập tên tệp trước!");
 
     if (fileSystem[name]) {
-        log("Tệp '" + name + "' đã tồn tại → không tạo mới (demo Creating).");
+        log("Tệp '" + name + "' đã tồn tại → không tạo mới.");
     } else {
         fileSystem[name] = { name: name, content: "" };
         currentFile = fileSystem[name];
@@ -421,13 +706,12 @@ function createFile() {
     }
 }
 
-// Opening a file
 function openFile() {
     let name = document.getElementById("filename").value.trim();
     if (!name) return alert("Nhập tên tệp trước!");
 
     if (!fileSystem[name]) {
-        alert("Tệp chưa tồn tại. Hãy tạo tệp trước (Creating a file).");
+        alert("Tệp chưa tồn tại. Hãy tạo tệp trước.");
         return;
     }
     currentFile = fileSystem[name];
@@ -435,22 +719,19 @@ function openFile() {
     refreshFileList();
 }
 
-// Writing a file (overwrite nội dung bằng vùng nhập)
 function writeFile() {
-    if (!currentFile) return alert("Hãy Mở tệp trước khi Ghi (Open → Write).");
+    if (!currentFile) return alert("Hãy Mở tệp trước khi Ghi.");
     let text = document.getElementById("writeContent").value;
     currentFile.content = text;
     log(`Ghi một tệp: ghi ${text.length} ký tự vào '${currentFile.name}'.`);
 }
 
-// Reading a file
 function readFile() {
     if (!currentFile) return alert("Hãy Mở tệp trước khi Đọc.");
     log(`----- Đọc một tệp '${currentFile.name}' -----`);
     log(currentFile.content || "(Tệp đang trống)");
 }
 
-// Repositioning within a file (Seek)
 function seekRead() {
     if (!currentFile) return alert("Hãy Mở tệp trước khi Seek.");
     let pos = parseInt(document.getElementById("seekPos").value);
@@ -460,25 +741,22 @@ function seekRead() {
         return;
     }
     let txt = currentFile.content.substring(pos, pos + len);
-    log(`Định vị lại trong tệp: từ byte ${pos}, đọc ${len} ký tự:`);
+    log(`Định vị lại: từ byte ${pos}, đọc ${len} ký tự:`);
     log(txt || "(vượt ngoài phạm vi dữ liệu)");
 }
 
-// Truncating a file (cắt ngắn về 0 byte)
 function truncateFile() {
     if (!currentFile) return alert("Hãy Mở tệp trước khi Cắt ngắn.");
     currentFile.content = "";
-    log("Cắt ngắn một tệp: đặt kích thước của '" +
-        currentFile.name + "' về 0 (xóa toàn bộ nội dung nhưng giữ tên tệp).");
+    log("Cắt ngắn tệp '" + currentFile.name + "' về kích thước 0.");
 }
 
-// Deleting a file
 function deleteFile() {
     if (!currentFile) return alert("Chưa có tệp nào đang được chọn để xóa.");
     let name = currentFile.name;
     delete fileSystem[name];
     currentFile = null;
-    log("Xóa một tệp: '" + name + "' khỏi hệ thống (demo).");
+    log("Xóa tệp: '" + name + "'.");
     refreshFileList();
 }
 
@@ -536,7 +814,6 @@ function showChain() {
     document.getElementById("fatOutput").innerText =
         "FAT Chain: " + chain.join(" → ") + " → NULL";
 
-    // Draw linked list diagram
     let diag = "";
     chain.forEach((blk) => {
         if (blk === "(loop detected)") return;
@@ -557,11 +834,13 @@ function showChain() {
     document.getElementById("diagram").innerText = diag;
 }
 
-/* ---------------------- TAB 3: ALLOCATION METHODS (v2 – có mô phỏng di chuyển) ---------------------- */
+/* ---------------------- TAB 3: ALLOCATION METHODS ---------------------- */
 let diskBlocks = [];
 let allocAnimTimer = null;
+let contigAnimTimer = null;
+let linkedAnimTimer = null;
+let indexedAnimTimer = null;
 
-// Khởi tạo đĩa
 function initDisk() {
     const n = parseInt(document.getElementById("diskSize").value);
     if (isNaN(n) || n <= 0) return alert("Disk size không hợp lệ!");
@@ -570,7 +849,6 @@ function initDisk() {
     drawDisk([], -1, "Đã khởi tạo đĩa với " + n + " block.\nChưa có file nào được cấp phát.");
 }
 
-// Vẽ lại dải block trên màn hình
 function drawDisk(path = [], current = -1, caption = "") {
     const visual = document.getElementById("diskVisual");
     if (!visual) return;
@@ -587,15 +865,11 @@ function drawDisk(path = [], current = -1, caption = "") {
     document.getElementById("allocOutput").innerText = caption;
 }
 
-// Dừng mọi animation đang chạy
 function stopAllocAnimation() {
-    if (allocAnimTimer) {
-        clearInterval(allocAnimTimer);
-        allocAnimTimer = null;
-    }
+    if (allocAnimTimer) { clearInterval(allocAnimTimer); allocAnimTimer = null; }
 }
 
-// Hàm chung: mô phỏng "di chuyển" qua từng block trong path
+/* animation cho dải block */
 function animatePath(path, baseCaption) {
     stopAllocAnimation();
 
@@ -621,15 +895,150 @@ function animatePath(path, baseCaption) {
             "\n\nĐang truy cập block: " + currentBlock +
             " (bước " + (step + 1) + " / " + path.length + ")";
         drawDisk(path, currentBlock, caption);
-    }, 600); // 600ms mỗi bước cho HS dễ nhìn
+    }, 600);
 }
 
-/* ---- 3.1 Contiguous Allocation ---- */
+/* ===== 3.1 CONTIGUOUS ALLOCATION – sơ đồ + mũi tên ===== */
+function renderContiguousDiagram(totalBlocks, path) {
+    const container = document.getElementById("contiguousDiagram");
+    if (!container) return;
+
+    if (!Array.isArray(path) || path.length === 0) {
+        container.innerHTML = "<i>Chưa có file nào được cấp phát.</i>";
+        return;
+    }
+
+    const start = path[0];
+    const end   = path[path.length - 1];
+    const length = path.length;
+
+    let html = `
+      <div class="linked-layout">
+        <div class="dir-box">
+          <div class="dir-title">Directory</div>
+          <table class="dir-table">
+            <tr><th>File</th><th>Start</th><th>Length</th></tr>
+            <tr><td>File_1</td><td>${start}</td><td>${length}</td></tr>
+          </table>
+        </div>
+
+        <div class="mem-box">
+          <div class="mem-title">Memory (Contiguous Blocks)</div>
+          <svg class="link-arrows" id="contigSvg"></svg>
+          <div class="mem-grid">
+    `;
+
+    for (let i = 0; i < totalBlocks; i++) {
+        const isFileBlock = path.includes(i);
+        html += `
+          <div class="mem-block ${isFileBlock ? "file" : ""}" id="contigBlock_${i}">
+            <div class="idx">${i}</div>
+            <div class="label">${isFileBlock ? "File_1" : "&nbsp;"}</div>
+          </div>
+        `;
+    }
+
+    html += `
+          </div>
+        </div>
+      </div>
+      <small><i>File_1 chiếm một đoạn liên tục trên đĩa, các block liền kề nhau; mũi tên minh họa hướng đọc.</i></small>
+    `;
+
+    container.innerHTML = html;
+    setTimeout(() => drawContiguousArrows(path), 50);
+}
+
+function drawContiguousArrows(path) {
+    const svg = document.getElementById("contigSvg");
+    if (!svg) return;
+
+    const memBox = svg.parentElement;
+    const boxRect = memBox.getBoundingClientRect();
+
+    svg.setAttribute("width", boxRect.width);
+    svg.setAttribute("height", boxRect.height);
+    svg.setAttribute("viewBox", `0 0 ${boxRect.width} ${boxRect.height}`);
+    svg.innerHTML = "";
+
+    const svgns = "http://www.w3.org/2000/svg";
+
+    const defs = document.createElementNS(svgns, "defs");
+    const marker = document.createElementNS(svgns, "marker");
+    marker.setAttribute("id", "contigArrowHead");
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "10");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "4");
+    marker.setAttribute("orient", "auto");
+    const mPath = document.createElementNS(svgns, "path");
+    mPath.setAttribute("d", "M0,0 L8,4 L0,8 Z");
+    mPath.setAttribute("fill", "#2b4c7e");
+    marker.appendChild(mPath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    const centers = [];
+    path.forEach(b => {
+        const el = document.getElementById("contigBlock_" + b);
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        centers.push({
+            x: r.left + r.width / 2 - boxRect.left,
+            y: r.top + r.height / 2 - boxRect.top
+        });
+    });
+
+    for (let i = 0; i < centers.length - 1; i++) {
+        const c1 = centers[i];
+        const c2 = centers[i + 1];
+        const line = document.createElementNS(svgns, "line");
+        line.setAttribute("x1", c1.x);
+        line.setAttribute("y1", c1.y);
+        line.setAttribute("x2", c2.x);
+        line.setAttribute("y2", c2.y);
+        line.setAttribute("stroke", "#2b4c7e");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute("marker-end", "url(#contigArrowHead)");
+        svg.appendChild(line);
+    }
+}
+
+function animateContiguousDiagram(path) {
+    if (contigAnimTimer) {
+        clearInterval(contigAnimTimer);
+        contigAnimTimer = null;
+    }
+    if (!Array.isArray(path) || path.length === 0) return;
+
+    let step = -1;
+
+    contigAnimTimer = setInterval(() => {
+        step++;
+
+        path.forEach(b => {
+            const el = document.getElementById("contigBlock_" + b);
+            if (el) el.classList.remove("active");
+        });
+
+        if (step >= path.length) {
+            clearInterval(contigAnimTimer);
+            contigAnimTimer = null;
+            return;
+        }
+
+        const blk = path[step];
+        const el = document.getElementById("contigBlock_" + blk);
+        if (el) el.classList.add("active");
+    }, 700);
+}
+
+/* 3.1 Contiguous – logic chính */
 function demoContiguous() {
     if (diskBlocks.length === 0) initDisk();
     const start = parseInt(document.getElementById("contigStart").value);
-    const len = parseInt(document.getElementById("contigLen").value);
-    const n = diskBlocks.length;
+    const len   = parseInt(document.getElementById("contigLen").value);
+    const n     = diskBlocks.length;
 
     if (isNaN(start) || isNaN(len) || start < 0 || len <= 0 || start + len > n) {
         alert("Thông số contiguous không hợp lệ!");
@@ -641,22 +1050,155 @@ function demoContiguous() {
 
     let text = "== Contiguous Allocation ==\n";
     text += "Start = " + start + ", Length = " + len + "\n";
-    text += "Các block được cấp phát liên tục cho file: " + used.join(", ") + "\n";
-    text += "Đặc điểm: File chiếm một đoạn liên tục trên đĩa → truy cập nhanh, nhưng khó mở rộng.\n";
+    text += "Các block được cấp phát liên tục cho File_1: " + used.join(", ") + "\n";
+    text += "Đặc điểm: block nằm liền nhau → truy cập nhanh, khó mở rộng.\n";
 
     animatePath(used, text);
+    renderContiguousDiagram(n, used);
+    animateContiguousDiagram(used);
 }
 
-/* ---- 3.2 Linked Allocation ---- */
+/* ======= 3.2 Linked Allocation ======= */
+function renderLinkedDiagram(totalBlocks, path) {
+    const container = document.getElementById("linkedDiagram");
+    if (!container) return;
+
+    if (!Array.isArray(path) || path.length === 0) {
+        container.innerHTML = "<i>Chưa có chuỗi block nào.</i>";
+        return;
+    }
+
+    const start = path[0];
+    const end = path[path.length - 1];
+
+    let html = `
+      <div class="linked-layout">
+        <div class="dir-box">
+          <div class="dir-title">Directory</div>
+          <table class="dir-table">
+            <tr><th>File</th><th>Start</th><th>End</th></tr>
+            <tr><td>File_1</td><td>${start}</td><td>${end}</td></tr>
+          </table>
+        </div>
+
+        <div class="mem-box">
+          <div class="mem-title">Memory (Linked Blocks)</div>
+          <svg class="link-arrows" id="linkSvg"></svg>
+          <div class="mem-grid">
+    `;
+
+    for (let i = 0; i < totalBlocks; i++) {
+        const isFileBlock = path.includes(i);
+        html += `
+          <div class="mem-block ${isFileBlock ? "file" : ""}" id="memBlock_${i}">
+            <div class="idx">${i}</div>
+            <div class="label">${isFileBlock ? "File_1" : "&nbsp;"}</div>
+          </div>
+        `;
+    }
+
+    html += `
+          </div>
+        </div>
+      </div>
+      <small><i>Khối màu vàng là các block thuộc File_1; khối nhấp nháy thể hiện hướng duyệt theo con trỏ.</i></small>
+    `;
+
+    container.innerHTML = html;
+    setTimeout(() => drawLinkedArrows(path), 50);
+}
+
+function drawLinkedArrows(path) {
+    const svg = document.getElementById("linkSvg");
+    if (!svg) return;
+
+    const memBox = svg.parentElement;
+    const boxRect = memBox.getBoundingClientRect();
+
+    svg.setAttribute("width", boxRect.width);
+    svg.setAttribute("height", boxRect.height);
+    svg.setAttribute("viewBox", `0 0 ${boxRect.width} ${boxRect.height}`);
+    svg.innerHTML = "";
+
+    const svgns = "http://www.w3.org/2000/svg";
+
+    const defs = document.createElementNS(svgns, "defs");
+    const marker = document.createElementNS(svgns, "marker");
+    marker.setAttribute("id", "arrowHead");
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "10");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "4");
+    marker.setAttribute("orient", "auto");
+    const mPath = document.createElementNS(svgns, "path");
+    mPath.setAttribute("d", "M0,0 L8,4 L0,8 Z");
+    mPath.setAttribute("fill", "#2b4c7e");
+    marker.appendChild(mPath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    const centers = [];
+    path.forEach(b => {
+        const el = document.getElementById("memBlock_" + b);
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        centers.push({
+            x: r.left + r.width / 2 - boxRect.left,
+            y: r.top + r.height / 2 - boxRect.top
+        });
+    });
+
+    for (let i = 0; i < centers.length - 1; i++) {
+        const c1 = centers[i];
+        const c2 = centers[i + 1];
+        const line = document.createElementNS(svgns, "line");
+        line.setAttribute("x1", c1.x);
+        line.setAttribute("y1", c1.y);
+        line.setAttribute("x2", c2.x);
+        line.setAttribute("y2", c2.y);
+        line.setAttribute("stroke", "#2b4c7e");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute("marker-end", "url(#arrowHead)");
+        svg.appendChild(line);
+    }
+}
+
+function animateLinkedDiagram(path) {
+    if (linkedAnimTimer) {
+        clearInterval(linkedAnimTimer);
+        linkedAnimTimer = null;
+    }
+
+    if (!Array.isArray(path) || path.length === 0) return;
+
+    let step = -1;
+
+    linkedAnimTimer = setInterval(() => {
+        step++;
+
+        path.forEach(b => {
+            const el = document.getElementById("memBlock_" + b);
+            if (el) el.classList.remove("active");
+        });
+
+        if (step >= path.length) {
+            clearInterval(linkedAnimTimer);
+            linkedAnimTimer = null;
+            return;
+        }
+
+        const blk = path[step];
+        const el = document.getElementById("memBlock_" + blk);
+        if (el) el.classList.add("active");
+    }, 700);
+}
+
 function demoLinked() {
     if (diskBlocks.length === 0) initDisk();
     const raw = document.getElementById("linkedBlocks").value.trim();
-    if (!raw) return alert("Nhập danh sách block (vd: 2,10,5,7)");
+    if (!raw) return alert("Nhập danh sách block (vd: 0,5,10,13)");
 
-    const parts = raw.split(",")
-                     .map(x => parseInt(x.trim()))
-                     .filter(x => !isNaN(x));
-
+    const parts = raw.split(",").map(x => parseInt(x.trim())).filter(x => !isNaN(x));
     if (parts.length === 0) return alert("Danh sách không hợp lệ!");
 
     const n = diskBlocks.length;
@@ -670,15 +1212,175 @@ function demoLinked() {
     const chain = parts.join(" → ") + " → NULL";
 
     let text = "== Linked Allocation (FAT-style) ==\n";
-    text += "Chuỗi block của file:\n" + chain + "\n\n";
-    text += "Giải thích: Mỗi block chứa con trỏ đến block tiếp theo (hoặc -1/NULL nếu là block cuối).\n";
-    text += "Ưu điểm: Không cần liên tục trên đĩa, dễ mở rộng.\n";
-    text += "Nhược điểm: Truy cập ngẫu nhiên chậm, phải lần theo từng con trỏ.\n";
+    text += "Chuỗi block của File_1:\n" + chain + "\n\n";
+    text += "Mỗi block chứa con trỏ tới block tiếp theo.\n";
 
     animatePath(parts, text);
+    renderLinkedDiagram(n, parts);
+    animateLinkedDiagram(parts);
 }
 
-/* ---- 3.3 Indexed Allocation ---- */
+/* ======= 3.3 Indexed Allocation ======= */
+function renderIndexedDiagram(totalBlocks, indexBlock, dataBlocks) {
+    const container = document.getElementById("indexedDiagram");
+    if (!container) return;
+
+    let html = `
+      <div class="indexed-layout">
+        <div class="dir-box">
+          <div class="dir-title">Directory</div>
+          <table class="dir-table">
+            <tr><th>File</th><th>Index block</th></tr>
+            <tr><td>File_1</td><td>${indexBlock}</td></tr>
+          </table>
+        </div>
+
+        <div class="index-box">
+          <div class="index-title">Index Block (i-node)</div>
+          <table class="index-table">
+            <tr><th colspan="3">Block #${indexBlock}</th></tr>
+            <tr><th>Entry</th><th>Pointer</th><th>Ghi chú</th></tr>
+    `;
+
+    dataBlocks.forEach((b, i) => {
+        html += `
+          <tr id="indexCell_${i}" class="index-cell">
+            <td>${i}</td>
+            <td>${b}</td>
+            <td>→ block dữ liệu</td>
+          </tr>
+        `;
+    });
+
+    html += `
+          </table>
+        </div>
+
+        <div class="idata-box">
+          <div class="idata-title">Memory (Data Blocks)</div>
+          <svg class="index-arrows" id="indexSvg"></svg>
+          <div class="idata-grid">
+    `;
+
+    for (let i = 0; i < totalBlocks; i++) {
+        const isData = dataBlocks.includes(i);
+        const isIndex = (i === indexBlock);
+        html += `
+          <div class="idata-block ${isData ? "data" : ""} ${isIndex ? "index" : ""}" id="idataBlock_${i}">
+            <div class="idx">${i}</div>
+            <div class="label">
+              ${isIndex ? "Index" : (isData ? "File_1" : "&nbsp;")}
+            </div>
+          </div>
+        `;
+    }
+
+    html += `
+          </div>
+        </div>
+      </div>
+      <small><i>Directory trỏ đến index block; index block chứa con trỏ tới các block dữ liệu của File_1.</i></small>
+    `;
+
+    container.innerHTML = html;
+    setTimeout(() => drawIndexedArrows(indexBlock, dataBlocks), 50);
+}
+
+function drawIndexedArrows(indexBlock, dataBlocks) {
+    const svg = document.getElementById("indexSvg");
+    if (!svg) return;
+
+    const box = svg.parentElement;
+    const boxRect = box.getBoundingClientRect();
+
+    svg.setAttribute("width", boxRect.width);
+    svg.setAttribute("height", boxRect.height);
+    svg.setAttribute("viewBox", `0 0 ${boxRect.width} ${boxRect.height}`);
+    svg.innerHTML = "";
+
+    const svgns = "http://www.w3.org/2000/svg";
+
+    const defs = document.createElementNS(svgns, "defs");
+    const marker = document.createElementNS(svgns, "marker");
+    marker.setAttribute("id", "arrowHead2");
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "10");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "4");
+    marker.setAttribute("orient", "auto");
+    const mPath = document.createElementNS(svgns, "path");
+    mPath.setAttribute("d", "M0,0 L8,4 L0,8 Z");
+    mPath.setAttribute("fill", "#2b4c7e");
+    marker.appendChild(mPath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    const indexEl = document.getElementById("idataBlock_" + indexBlock);
+    if (!indexEl) return;
+    const rIndex = indexEl.getBoundingClientRect();
+    const cx = rIndex.left + rIndex.width / 2 - boxRect.left;
+    const cy = rIndex.top + rIndex.height / 2 - boxRect.top;
+
+    dataBlocks.forEach(b => {
+        const blockEl = document.getElementById("idataBlock_" + b);
+        if (!blockEl) return;
+        const r = blockEl.getBoundingClientRect();
+        const x2 = r.left + r.width / 2 - boxRect.left;
+        const y2 = r.top + r.height / 2 - boxRect.top;
+
+        const line = document.createElementNS(svgns, "line");
+        line.setAttribute("x1", cx);
+        line.setAttribute("y1", cy);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("stroke", "#2b4c7e");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute("marker-end", "url(#arrowHead2)");
+        svg.appendChild(line);
+    });
+}
+
+function animateIndexedDiagram(indexBlock, dataBlocks) {
+    if (indexedAnimTimer) {
+        clearInterval(indexedAnimTimer);
+        indexedAnimTimer = null;
+    }
+    if (!Array.isArray(dataBlocks) || dataBlocks.length === 0) return;
+
+    let step = -1;
+
+    indexedAnimTimer = setInterval(() => {
+        step++;
+
+        dataBlocks.forEach((b, i) => {
+            const cell = document.getElementById("indexCell_" + i);
+            const block = document.getElementById("idataBlock_" + b);
+            if (cell) cell.classList.remove("active");
+            if (block) block.classList.remove("active");
+        });
+        const indexBlockEl = document.getElementById("idataBlock_" + indexBlock);
+        if (indexBlockEl) indexBlockEl.classList.remove("active");
+
+        if (step === 0) {
+            const indexBlockEl2 = document.getElementById("idataBlock_" + indexBlock);
+            if (indexBlockEl2) indexBlockEl2.classList.add("active");
+            return;
+        }
+        if (step > dataBlocks.length) {
+            clearInterval(indexedAnimTimer);
+            indexedAnimTimer = null;
+            return;
+        }
+
+        const i = step - 1;
+        const b = dataBlocks[i];
+        const cell = document.getElementById("indexCell_" + i);
+        const block = document.getElementById("idataBlock_" + b);
+        if (cell) cell.classList.add("active");
+        if (block) block.classList.add("active");
+    }, 800);
+}
+
 function demoIndexed() {
     if (diskBlocks.length === 0) initDisk();
 
@@ -709,31 +1411,75 @@ function demoIndexed() {
     text += "Index block (i-node) = " + idx + "\n";
     text += "Danh sách block dữ liệu: " +
             (dataBlocks.length ? dataBlocks.join(", ") : "(trống)") + "\n\n";
-
-    text += "Giải thích: Index block chứa danh sách các con trỏ đến block dữ liệu.\n";
-    text += "Ưu điểm: Truy cập ngẫu nhiên nhanh, không cần liên tục.\n";
-    text += "Nhược điểm: Tốn thêm 1 block làm chỉ mục, có giới hạn số block nếu bảng chỉ mục cố định.\n";
+    text += "Directory lưu số hiệu index block; index block chứa con trỏ tới các block dữ liệu.\n";
 
     animatePath(highlight, text);
+    renderIndexedDiagram(n, idx, dataBlocks);
+    animateIndexedDiagram(idx, dataBlocks);
 }
 
 /* ---------------------- TAB 4: ACCESS METHODS ---------------------- */
+let accessAnimTimer = null;
 
-// ghi log riêng cho tab 4
+function clearAccessAnimation() {
+    if (accessAnimTimer) {
+        clearInterval(accessAnimTimer);
+        accessAnimTimer = null;
+    }
+}
+
 function logAccess(msg) {
     const out = document.getElementById("accessOutput");
     out.innerHTML += msg + "\n";
     out.scrollTop = out.scrollHeight;
 }
 
-// lấy danh sách bản ghi từ textarea
 function getAccessRecords() {
     const raw = document.getElementById("accessFile").value.trim();
     if (!raw) return [];
     return raw.split(",").map(x => x.trim()).filter(x => x.length > 0);
 }
 
-// 4.1 Sequential Access
+/* vẽ hàng record cơ bản */
+function renderAccessBase(recs) {
+    const container = document.getElementById("accessDiagram");
+    if (!container) return;
+
+    if (!recs || recs.length === 0) {
+        container.innerHTML = "<i>File đang trống. Hãy nhập các bản ghi (vd: R1,R2,R3,...).</i>";
+        return;
+    }
+
+    let html = `
+      <div class="access-layout">
+        <div class="file-box">
+          <div class="file-title">File (Chuỗi bản ghi)</div>
+          <div class="records-row">
+    `;
+
+    recs.forEach((r, i) => {
+        html += `
+          <div class="record-block" id="rec_${i}">
+            <div class="idx">[${i}]</div>
+            <div class="val">${r}</div>
+          </div>
+        `;
+    });
+
+    html += `
+          </div>
+        </div>
+        <div class="access-extra" id="accessExtra">
+          <div class="access-extra-title">Bảng minh họa</div>
+          <p style="font-size:12px;">Chạy một demo để xem cấu trúc tương ứng.</p>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+/* 4.1 Sequential */
 function demoSequential() {
     const recs = getAccessRecords();
     if (recs.length === 0) {
@@ -741,15 +1487,35 @@ function demoSequential() {
         return;
     }
     document.getElementById("accessOutput").innerHTML = "";
+    clearAccessAnimation();
+    renderAccessBase(recs);
+
     logAccess("== Sequential Access ==");
-    logAccess("Đọc lần lượt từ đầu đến cuối file:");
-    recs.forEach((r, i) => {
-        logAccess("  Bước " + (i + 1) + ": đọc record[" + i + "] = " + r);
-    });
-    logAccess("\nKết luận: phải đi qua tất cả bản ghi trước vị trí cần đọc.");
+    logAccess("Đọc lần lượt từng bản ghi từ đầu tới cuối.\n");
+
+    let step = -1;
+
+    accessAnimTimer = setInterval(() => {
+        step++;
+
+        recs.forEach((_, i) => {
+            const el = document.getElementById("rec_" + i);
+            if (el) el.classList.remove("active");
+        });
+
+        if (step >= recs.length) {
+            clearAccessAnimation();
+            logAccess("Kết thúc: đã duyệt hết " + recs.length + " bản ghi.");
+            return;
+        }
+
+        const el = document.getElementById("rec_" + step);
+        if (el) el.classList.add("active");
+        logAccess("Bước " + (step + 1) + ": đọc record[" + step + "] = " + recs[step]);
+    }, 700);
 }
 
-// 4.2 Direct Access
+/* 4.2 Direct */
 function demoDirect() {
     const recs = getAccessRecords();
     const pos = parseInt(document.getElementById("accessPos").value);
@@ -762,13 +1528,23 @@ function demoDirect() {
         return;
     }
     document.getElementById("accessOutput").innerHTML = "";
+    clearAccessAnimation();
+    renderAccessBase(recs);
+
+    recs.forEach((_, i) => {
+        const el = document.getElementById("rec_" + i);
+        if (el) el.classList.remove("active");
+    });
+    const target = document.getElementById("rec_" + pos);
+    if (target) target.classList.add("active");
+
     logAccess("== Direct Access ==");
     logAccess("Số record trong file: " + recs.length);
-    logAccess("Truy cập trực tiếp record[" + pos + "]: " + recs[pos]);
-    logAccess("\nKết luận: có thể nhảy thẳng tới vị trí i mà không cần đọc lần lượt từ đầu.");
+    logAccess("Nhảy thẳng đến record[" + pos + "] và đọc = " + recs[pos]);
+    logAccess("Không cần đọc tuần tự các bản ghi phía trước.");
 }
 
-// 4.3 Indexed Access
+/* 4.3 Indexed Access */
 function demoIndexedAccess() {
     const recs = getAccessRecords();
     const key = document.getElementById("accessKeyIndex").value.trim();
@@ -781,32 +1557,54 @@ function demoIndexedAccess() {
         return;
     }
 
-    // tạo bảng chỉ mục: recordName -> vị trí
-    const indexTable = {};
-    recs.forEach((r, i) => {
-        indexTable[r] = i;  // đơn giản: khóa chính là tên record
-    });
-
     document.getElementById("accessOutput").innerHTML = "";
-    logAccess("== Indexed Access ==");
-    logAccess("Bảng chỉ mục (record -> vị trí):");
-    Object.keys(indexTable).forEach(k => {
-        logAccess("  " + k + "  →  record[" + indexTable[k] + "]");
-    });
+    clearAccessAnimation();
+    renderAccessBase(recs);
 
-    if (indexTable[key] === undefined) {
-        logAccess("\nTra cứu khóa '" + key + "': KHÔNG TÌM THẤY trong bảng chỉ mục.");
-    } else {
-        const pos = indexTable[key];
-        logAccess("\nTra cứu khóa '" + key + "':");
-        logAccess("  Dùng index table tìm được vị trí = " + pos);
-        logAccess("  Đọc record[" + pos + "] = " + recs[pos]);
+    const indexTable = {};
+    recs.forEach((r, i) => { indexTable[r] = i; });
+
+    const extra = document.getElementById("accessExtra");
+    let html = `
+      <div class="access-extra-title">Bảng chỉ mục (record → vị trí)</div>
+      <table class="access-table">
+        <tr><th>Khóa</th><th>Vị trí</th></tr>
+    `;
+    recs.forEach((r, i) => {
+        html += `<tr id="idxRow_${i}"><td>${r}</td><td>${i}</td></tr>`;
+    });
+    html += `</table>`;
+    extra.innerHTML = html;
+
+    logAccess("== Indexed Access ==");
+    logAccess("Tạo bảng chỉ mục: record → vị trí.\n");
+
+    const pos = indexTable[key];
+
+    if (pos === undefined) {
+        logAccess("Khóa '" + key + "' không tồn tại trong bảng chỉ mục.");
+        return;
     }
 
-    logAccess("\nKết luận: Indexed access dùng một bảng tra cứu trung gian để tìm nhanh vị trí cần đọc.");
+    logAccess("Tra cứu khóa '" + key + "':");
+    logAccess("Bước 1: tìm trong bảng chỉ mục → vị trí = " + pos);
+    logAccess("Bước 2: nhảy tới record[" + pos + "] = " + recs[pos]);
+
+    // highlight: trước dòng index, sau đó record
+    const row = document.getElementById("idxRow_" + pos);
+    const recEl = document.getElementById("rec_" + pos);
+
+    if (row) {
+        row.classList.add("active");
+        setTimeout(() => {
+            if (recEl) recEl.classList.add("active");
+        }, 600);
+    } else if (recEl) {
+        recEl.classList.add("active");
+    }
 }
 
-// 4.4 Hashed Access
+/* 4.4 Hashed Access */
 function demoHashedAccess() {
     const recs = getAccessRecords();
     const key = document.getElementById("accessKeyHash").value.trim();
@@ -815,14 +1613,13 @@ function demoHashedAccess() {
         return;
     }
 
-    const BUCKETS = 5; // giả sử có 5 bucket
+    const BUCKETS = 5;
     function hash(str) {
         let sum = 0;
         for (let i = 0; i < str.length; i++) sum += str.charCodeAt(i);
         return sum % BUCKETS;
     }
 
-    // Tạo vài khóa minh họa từ records
     const keys = recs.length ? recs.slice(0) : ["A","B","C","D","E"];
     const table = {};
     keys.forEach(k => {
@@ -832,22 +1629,33 @@ function demoHashedAccess() {
     });
 
     document.getElementById("accessOutput").innerHTML = "";
-    logAccess("== Hashed Access ==");
-    logAccess("Số bucket giả lập: " + BUCKETS + "\n");
+    clearAccessAnimation();
+    renderAccessBase(recs);
 
+    const extra = document.getElementById("accessExtra");
+    let html = `
+      <div class="access-extra-title">Bảng băm (Hash table)</div>
+      <table class="access-table">
+        <tr><th>Bucket</th><th>Các khóa</th></tr>
+    `;
     for (let b = 0; b < BUCKETS; b++) {
-        logAccess("Bucket " + b + ": " + (table[b] ? table[b].join(", ") : "(trống)"));
+        const list = table[b] ? table[b].join(", ") : "(trống)";
+        html += `<tr id="bucketRow_${b}"><td>${b}</td><td>${list}</td></tr>`;
     }
+    html += `</table>`;
+    extra.innerHTML = html;
 
     const hk = hash(key);
-    logAccess("\nKhóa cần tra: '" + key + "'");
-    logAccess("  hash(key) = " + hk + " → tra cứu trong Bucket " + hk);
 
-    logAccess("\nKết luận: Hashed access dùng hàm băm để nhảy nhanh tới bucket chứa bản ghi.");
+    logAccess("== Hashed Access ==");
+    logAccess("Số bucket: " + BUCKETS);
+    logAccess("hash('" + key + "') = " + hk + " → tra cứu trong Bucket " + hk);
 
+    const row = document.getElementById("bucketRow_" + hk);
+    if (row) row.classList.add("active");
 }
 
-// Khởi tạo mặc định cho tab 3
+/* init */
 initDisk();
 </script>
 </body>
